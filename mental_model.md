@@ -115,5 +115,8 @@ sequenceDiagram
 - wrong token, no token
 - expired session
 
+### security
+- XSS
+
 required module
 - http ,pg, bcrypt, cookie

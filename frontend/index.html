@@ -15,8 +15,10 @@
   <header class="site-header">
     <a class="brand" href="#"><span class="brand-mark">s</span> softgoods</a>
     <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Search anything..." autocomplete="off" /></label>
-    <button class="icon-button" id="favoritesButton" aria-label="View wishlist">♡<span class="tiny-count" id="favoriteCount">0</span></button>
-    <button class="cart-button" id="cartButton" aria-label="Open shopping bag"><span>Bag</span><b id="cartCount">0</b><i>→</i></button>
+    <div class="button-wrapper">
+      <button class="icon-button" id="favoritesButton" aria-label="View wishlist">♡<span class="tiny-count" id="favoriteCount">0</span></button>
+      <button class="cart-button" id="cartButton" aria-label="Open shopping bag"><span>Bag</span><b id="cartCount">0</b><i>→</i></button>
+    </div>
   </header>
 
   <main>
@@ -45,7 +47,14 @@
       <div class="catalogue">
         <div class="catalogue-head">
           <div><p class="section-label">THE COLLECTION</p><h2>Find your next favorite.</h2></div>
-          <label class="sort">Sort by <select id="sort"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="rating">Top rated</option></select></label>
+          <label class="sort">
+            <select id="option">
+              <option value="featured" id="featured"> Sort by featured </option>
+              <option value="price-low" id="price-low"> Sort by low - high price </option>
+              <option value="price-high" id="price-high"> Sort by high - low price </option>
+              <option value="rating" id="rating"> Sort by rating </option>
+            </select>
+          </label>
         </div>
         <div class="mobile-categories" id="mobileCategories"></div>
         <div class="product-grid" id="productGrid"></div>

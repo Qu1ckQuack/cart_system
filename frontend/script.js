@@ -129,14 +129,14 @@ const state = {
   cart: [],
   wishes: new Set(),
 };
-const cats = ["All pieces", ...new Set(products.map((p) => p.category))];
-const $ = (s) => document.querySelector(s),
+const categories = ["All pieces", ...new Set(products.map((product) => product.category))];
+const $ = (id) => document.querySelector(id),
   money = (n) => `$${n.toFixed(2)}`;
 function categoryButtons() {
-  return cats
+  return categories
     .map(
-      (c) =>
-        `<button class="category ${c === state.category ? "active" : ""}" data-category="${c}">${c}<span>${c === "All pieces" ? products.length : products.filter((p) => p.category === c).length}</span></button>`,
+      (category) =>
+        `<button class="category ${category === state.category ? "active" : ""}" data-category="${category}">${category}<span>${category === "All pieces" ? products.length : products.filter((product) => product.category === category).length}</span></button>`,
     )
     .join("");
 }
@@ -144,45 +144,45 @@ function renderCategories() {
   $("#categoryNav").innerHTML = categoryButtons();
   $("#mobileCategories").innerHTML = categoryButtons();
   document.querySelectorAll("[data-category]").forEach(
-    (b) =>
-      (b.onclick = () => {
-        state.category = b.dataset.category;
+    (button) =>
+      (button.onclick = () => {
+        state.category = button.dataset.category;
         render();
       }),
   );
 }
 function filtered() {
-  let p = products.filter(
-    (p) =>
-      (state.category === "All pieces" || p.category === state.category) &&
-      p.name.toLowerCase().includes(state.search),
+  let product = products.filter(
+    (product) =>
+      (state.category === "All pieces" || product.category === state.category) &&
+      product.name.toLowerCase().includes(state.search),
   );
-  return p.sort((a, b) =>
+  return product.sort((item1, item2) =>
     state.sort === "price-low"
-      ? a.price - b.price
+      ? item1.price - item2.price
       : state.sort === "price-high"
-        ? b.price - a.price
+        ? item2.price - item1.price
         : state.sort === "rating"
-          ? b.rating - a.rating
-          : a.id - b.id,
+          ? item2.rating - item1.rating
+          : item1.id - item2.id,
   );
 }
 function renderProducts() {
   const list = filtered();
   $("#productGrid").innerHTML = list
     .map(
-      (p) =>
-        `<article class="product-card"><div class="product-image">${p.badge ? `<span class="badge ${p.badge.toLowerCase().replace(" ", "")}">${p.badge}</span>` : ""}<button class="heart ${state.wishes.has(p.id) ? "saved" : ""}" data-wish="${p.id}" aria-label="Save ${p.name}">${state.wishes.has(p.id) ? "♥" : "♡"}</button><img src="${p.image}" alt="${p.name}"></div><div class="product-info"><span class="product-type">${p.category}</span><h3>${p.name}</h3><div class="price-row"><div class="price">${money(p.price)}${p.oldPrice ? `<span class="old-price">${money(p.oldPrice)}</span>` : ""}</div><span class="rating"><span>★</span> ${p.rating}</span></div><button class="add" data-add="${p.id}">Add to bag <b>+</b></button></div></article>`,
+      (product) =>
+        `<article class="product-card"><div class="product-image">${product.badge ? `<span class="badge ${product.badge.toLowerCase().replace(" ", "")}">${product.badge}</span>` : ""}<button class="heart ${state.wishes.has(product.id) ? "saved" : ""}" data-wish="${product.id}" aria-label="Save ${product.name}">${state.wishes.has(product.id) ? "♥" : "♡"}</button><img src="${product.image}" alt="${product.name}"></div><div class="product-info"><span class="product-type">${product.category}</span><h3>${product.name}</h3><div class="price-row"><div class="price">${money(product.price)}${product.oldPrice ? `<span class="old-price">${money(product.oldPrice)}</span>` : ""}</div><span class="rating"><span>★</span> ${product.rating}</span></div><button class="add" data-add="${product.id}">Add to bag <b>+</b></button></div></article>`,
     )
     .join("");
   $("#emptyState").hidden = !!list.length;
   document
     .querySelectorAll("[data-add]")
-    .forEach((b) => (b.onclick = () => add(+b.dataset.add)));
+    .forEach((button) => (button.onclick = () => add(+button.dataset.add)));
   document.querySelectorAll("[data-wish]").forEach(
-    (b) =>
-      (b.onclick = () => {
-        const id = +b.dataset.wish;
+    (button) =>
+      (button.onclick = () => {
+        const id = +button.dataset.wish;
         state.wishes.has(id) ? state.wishes.delete(id) : state.wishes.add(id);
         renderProducts();
         updateCounts();
@@ -190,13 +190,13 @@ function renderProducts() {
   );
 }
 function add(id) {
-  let item = state.cart.find((x) => x.id === id);
-  item ? item.qty++ : state.cart.push({ id, qty: 1 });
+  let items = state.cart.find((item) => item.id === id);
+  items ? items.qty++ : state.cart.push({ id, qty: 1 });
   updateCart();
   openDrawer();
 }
 function updateCounts() {
-  const count = state.cart.reduce((n, x) => n + x.qty, 0);
+  const count = state.cart.reduce((n, item) => n + item.qty, 0);
   $("#cartCount").textContent = count;
   $("#drawerCount").textContent = count;
   $("#favoriteCount").textContent = state.wishes.size;
@@ -205,35 +205,35 @@ function updateCart() {
   updateCounts();
   $("#cartItems").innerHTML = state.cart.length
     ? state.cart
-        .map((i) => {
-          const p = products.find((p) => p.id === i.id);
-          return `<div class="cart-item"><img src="${p.image}" alt=""><div><h3>${p.name}</h3><p>${money(p.price)}</p><div class="qty"><button data-qty="${p.id}" data-change="-1">−</button>${i.qty}<button data-qty="${p.id}" data-change="1">+</button></div></div><button class="remove" data-remove="${p.id}">×</button></div>`;
+        .map((item) => {
+          const product = products.find((product) => product.id === item.id);
+          return `<div class="cart-item"><img src="${product.image}" alt=""><div><h3>${product.name}</h3><p>${money(product.price)}</p><div class="qty"><button data-qty="${product.id}" data-change="-1">−</button>${item.qty}<button data-qty="${product.id}" data-change="1">+</button></div></div><button class="remove" data-remove="${product.id}">×</button></div>`;
         })
         .join("")
     : '<p class="empty-state">Your bag is feeling light.</p>';
   $("#total").textContent = money(
     state.cart.reduce(
-      (n, i) => n + products.find((p) => p.id === i.id).price * i.qty,
+      (n, item) => n + products.find((product) => product.id === item.id).price * item.qty,
       0,
     ),
   );
   document
     .querySelectorAll("[data-change]")
     .forEach(
-      (b) => (b.onclick = () => changeQty(+b.dataset.qty, +b.dataset.change)),
+      (button) => (button.onclick = () => changeQty(+button.dataset.qty, +button.dataset.change)),
     );
   document.querySelectorAll("[data-remove]").forEach(
-    (b) =>
-      (b.onclick = () => {
-        state.cart = state.cart.filter((i) => i.id !== +b.dataset.remove);
+    (button) =>
+      (button.onclick = () => {
+        state.cart = state.cart.filter((item) => item.id !== +button.dataset.remove);
         updateCart();
       }),
   );
 }
 function changeQty(id, change) {
-  const item = state.cart.find((x) => x.id === id);
+  const item = state.cart.find((item) => item.id === id);
   item.qty += change;
-  if (item.qty < 1) state.cart = state.cart.filter((x) => x.id !== id);
+  if (item.qty < 1) state.cart = state.cart.filter((item) => item.id !== id);
   updateCart();
 }
 function render() {
@@ -250,12 +250,12 @@ function closeDrawer() {
   $("#overlay").classList.remove("open");
   $("#drawer").setAttribute("aria-hidden", "true");
 }
-$("#search").oninput = (e) => {
-  state.search = e.target.value.toLowerCase();
+$("#search").oninput = (input) => {
+  state.search = input.target.value.toLowerCase();
   renderProducts();
 };
-$("#sort").onchange = (e) => {
-  state.sort = e.target.value;
+$("#option").onchange = (choice) => {
+  state.sort = choice.target.value;
   renderProducts();
 };
 $("#cartButton").onclick = openDrawer;
